@@ -2,13 +2,12 @@ package com.example.myapplication
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatCallback
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.ActivityMainBinding
-import kotlin.concurrent.thread
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,52 +19,39 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         binding.buttonDownload.setOnClickListener {
-            loadData()
+            lifecycleScope.launch {
+                loadData()
+            }
+
         }
     }
 
 
 
-    private fun loadData() {
+    private suspend fun loadData() {
         binding.progressBar.isVisible = true
         binding.buttonDownload.isEnabled = false
-        loadCity{
-            binding.tvCity.text = it
-            loadTemperature(it) {
-                binding.tvTemperature.text = it.toString()
-                binding.progressBar.isVisible = false
-                binding.buttonDownload.isEnabled = true
-            }
-
-        }
-
+        val city = loadCity()
+        binding.tvCity.text = city
+        val temper = loadTemperature(city)
+        binding.tvTemperature.text = temper.toString()
+        binding.progressBar.isVisible = false
+        binding.buttonDownload.isEnabled = true
     }
 
-    private fun loadCity(callback: (String) -> Unit) {
-        thread {
-            runOnUiThread {
-                Thread.sleep(2000)
-                callback.invoke("Moscow")
-            }
-        }
-
+    private suspend fun loadCity() : String {
+        delay(5000)
+        return "Moscow"
     }
 
-    private fun loadTemperature(city: String, callback: (Int) -> Unit) {
-        thread {
-            runOnUiThread{
-                Toast.makeText(
-                    this,
-                    "Load temperature from $city",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-            runOnUiThread {
-                Thread.sleep(3000)
-                callback.invoke(17)
-            }
-
-        }
+    private suspend fun loadTemperature(city: String): Int {
+        Toast.makeText(
+            this,
+            "Load temperature from $city",
+            Toast.LENGTH_LONG
+        ).show()
+        delay(5000)
+        return 17
     }
 
 
