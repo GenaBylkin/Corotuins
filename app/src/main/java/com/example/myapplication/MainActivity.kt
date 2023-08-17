@@ -2,6 +2,8 @@ package com.example.myapplication
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatCallback
 import androidx.core.view.isVisible
@@ -41,21 +43,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadCity(callback: (String) -> Unit) {
         thread {
-            Thread.sleep(5000)
-            callback.invoke("Moscow")
+            runOnUiThread {
+                Thread.sleep(2000)
+                callback.invoke("Moscow")
+            }
         }
 
     }
 
     private fun loadTemperature(city: String, callback: (Int) -> Unit) {
         thread {
-            Toast.makeText(
-                this,
-                "Load temperature from $city",
-                Toast.LENGTH_LONG
-            ).show()
-            Thread.sleep(5000)
-            callback.invoke(17)
+            runOnUiThread{
+                Toast.makeText(
+                    this,
+                    "Load temperature from $city",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            runOnUiThread {
+                Thread.sleep(3000)
+                callback.invoke(17)
+            }
+
         }
     }
 
